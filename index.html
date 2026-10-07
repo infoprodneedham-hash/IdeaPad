@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IdeaPad Pro & IdeaPad Mini — Free Visual Prompt Builder</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#bae0fd',
+              300: '#7cc5fb',
+              400: '#38a5f6',
+              500: '#0e87ea',
+              600: '#026bc8',
+              700: '#0355a2',
+              800: '#074885',
+              900: '#0c3d6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom subtle scrollbar & animation helpers */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .soft-blur {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .custom-shadow {
+      box-shadow: 0 10px 30px -10px rgba(14, 135, 234, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    }
+    .pulse-glow {
+      animation: pulse-soft 3s infinite ease-in-out;
+    }
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 0.9; transform: scale(1.03); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-[#f8fbfe] via-[#f1f6fc] to-[#eaf2fb] text-slate-800 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-brand-200 selection:text-brand-900">
+
+  <!-- Toast Notification for Interactions -->
+  <div id="toastMessage" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white text-sm px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastText">Action completed successfully!</span>
+  </div>
+
+  <!-- Global Backdrop for Side Drawer -->
+  <div id="drawerBackdrop" onclick="toggleShareDrawer(false)" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+  <!-- Social Share Slide-Out Sidebar (Left/Right flexible) -->
+  <aside id="shareDrawer" class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-white/95 soft-blur shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-out border-r border-brand-100 flex flex-col justify-between p-6">
+    <div>
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600">
+            <i data-lucide="share-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-slate-900 text-base leading-tight">Share IdeaPad</h3>
+            <p class="text-xs text-slate-500">Spread free creative tools</p>
+          </div>
+        </div>
+        <button onclick="toggleShareDrawer(false)" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Close Share Menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="mt-4 text-xs text-slate-600 leading-relaxed">
+        Let friends and fellow creators know about IdeaPad! 100% free with no sign-ups or server-held data.
+      </p>
+
+      <div class="mt-5 space-y-2.5">
+        <!-- Facebook -->
+        <button onclick="shareToSocial('facebook')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-slate-700 hover:text-blue-600 transition-all font-medium text-sm group">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs">
+              <i data-lucide="facebook" class="w-4 h-4"></i>
+            </span>
+            <span>Facebook</span>
+          </div>
+          <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
+        </button>
+
+        <!-- X (Twitter) -->
+        <button onclick="shareToSocial('x')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all font-medium text-sm group">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs">
+              <i data-lucide="twitter" class="w-4 h-4"></i>
+            </span>
+            <span>X / Twitter</span>
+          </div>
+          <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
+        </button>
+
+        <!-- Instagram -->
+        <button onclick="shareToSocial('instagram')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/40 text-slate-700 hover:text-pink-600 transition-all font-medium text-sm group">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-xs">
+              <i data-lucide="instagram" class="w-4 h-4"></i>
+            </span>
+            <span>Instagram</span>
+          </div>
+          <i data-lucide="copy" class="w-4 h-4 text-slate-400 group-hover:scale-110 transition-transform"></i>
+        </button>
+
+        <!-- TikTok -->
+        <button onclick="shareToSocial('tiktok')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-slate-800 hover:bg-slate-50 text-slate-700 hover:text-black transition-all font-medium text-sm group">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center text-xs font-bold">
+              <i data-lucide="video" class="w-4 h-4"></i>
+            </span>
+            <span>TikTok</span>
+          </div>
+          <i data-lucide="copy" class="w-4 h-4 text-slate-400 group-hover:scale-110 transition-transform"></i>
+        </button>
+      </div>
+
+      <!-- Quick Copy Link Box -->
+      <div class="mt-6 pt-5 border-t border-slate-100">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Direct Link</label>
+        <div class="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-xl border border-slate-200">
+          <input type="text" id="shareUrlInput" value="https://ideapad.local/app" readonly class="text-xs bg-transparent text-slate-600 px-2 flex-grow focus:outline-none select-all truncate">
+          <button onclick="copyShareLink()" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all flex items-center gap-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3.5 rounded-2xl bg-brand-50/70 border border-brand-100 text-center">
+      <p class="text-xs text-brand-800 font-medium">IdeaPad is 100% free and community driven!</p>
+    </div>
+  </aside>
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/80 soft-blur border-b border-brand-100/80 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center shadow-lg shadow-brand-500/25 ring-4 ring-brand-50">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-heading font-extrabold text-2xl tracking-tight text-slate-900">IdeaPad</span>
+            <div class="flex gap-1">
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-100 text-brand-700">Pro</span>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200/60">Mini</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium -mt-0.5 hidden sm:block">Visual Prompt Studio • 100% Free & Local</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Navigation -->
+      <div class="flex items-center gap-3">
+        <a href="#features" class="hidden md:inline-flex text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors">
+          Why Free?
+        </a>
+        <a href="#tutorial-section" class="hidden md:inline-flex text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors">
+          Interactive Demo
+        </a>
+        <a href="#feedback" class="text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5">
+          <i data-lucide="message-square" class="w-4 h-4 text-brand-500"></i>
+          <span>Report & Feedback</span>
+        </a>
+
+        <!-- Social Share Toggle Button -->
+        <button onclick="toggleShareDrawer(true)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold text-sm border border-brand-200/80 transition-all hover:shadow-sm active:scale-95" title="Share with friends">
+          <i data-lucide="share-2" class="w-4 h-4 text-brand-600"></i>
+          <span class="hidden sm:inline">Share</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-10 sm:pt-14 pb-16 overflow-hidden">
+    <!-- Background subtle ambient circles -->
+    <div class="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none overflow-hidden -z-10">
+      <div class="absolute -top-12 left-1/4 w-80 h-80 bg-brand-200/40 rounded-full blur-3xl pulse-glow"></div>
+      <div class="absolute top-16 right-1/4 w-96 h-96 bg-blue-100/70 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      
+      <!-- Friendly Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-brand-200/80 shadow-sm text-xs sm:text-sm font-semibold text-brand-700 mb-6">
+        <span class="flex h-2 w-2 rounded-full bg-brand-500 animate-ping"></span>
+        <span>The Zero-Account Visual AI Prompt Studio</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tight max-w-4xl mx-auto leading-[1.15]">
+        Craft Rich Visual Prompts for <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-brand-500 to-sky-500">Gemini, Claude & ChatGPT</span>
+      </h1>
+
+      <p class="mt-5 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Say goodbye to blank text boxes. Build rich prompt compositions, palettes, dynamic moods, and styles visually. Self-contained, secure, and stored solely on your machine.
+      </p>
+
+      <!-- TWO LARGE ROUNDED BUTTONS (Side by side on desktop, stacked on mobile) -->
+      <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 max-w-xl mx-auto">
+        
+        <!-- IdeaPad Pro Launch Desktop Button -->
+        <button onclick="launchApp('Pro (Desktop)')" class="w-full sm:w-1/2 group relative p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 text-white shadow-xl shadow-brand-600/25 hover:shadow-2xl hover:shadow-brand-600/35 hover:-translate-y-1 transition-all duration-200 text-left border border-brand-500/50">
+          <div class="flex items-center justify-between mb-2">
+            <span class="p-2.5 rounded-2xl bg-white/20 text-white group-hover:scale-110 transition-transform">
+              <i data-lucide="monitor" class="w-6 h-6"></i>
+            </span>
+            <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-white/20 text-brand-50">PRO</span>
+          </div>
+          <div class="font-heading font-bold text-lg leading-tight">Launch IdeaPad Pro</div>
+          <p class="text-xs text-brand-100 font-normal mt-1 flex items-center gap-1">
+            <span>Desktop Experience</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+          </p>
+        </button>
+
+        <!-- IdeaPad Mini Launch Mobile Button -->
+        <button onclick="launchApp('Mini (Mobile)')" class="w-full sm:w-1/2 group relative p-5 rounded-3xl bg-white text-slate-800 shadow-xl shadow-slate-200/70 hover:shadow-2xl hover:shadow-brand-100 hover:-translate-y-1 transition-all duration-200 text-left border border-brand-200/70">
+          <div class="flex items-center justify-between mb-2">
+            <span class="p-2.5 rounded-2xl bg-brand-50 text-brand-600 group-hover:scale-110 transition-transform">
+              <i data-lucide="smartphone" class="w-6 h-6"></i>
+            </span>
+            <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-blue-50 text-brand-700 border border-brand-200">MINI</span>
+          </div>
+          <div class="font-heading font-bold text-lg text-slate-900 leading-tight">Launch IdeaPad Mini</div>
+          <p class="text-xs text-slate-500 font-normal mt-1 flex items-center gap-1">
+            <span>Mobile Compact Mode</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-brand-600 group-hover:translate-x-1 transition-transform"></i>
+          </p>
+        </button>
+
+      </div>
+
+      <!-- Quick Trust Indicators -->
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-500">
+        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-brand-500"></i> No Sign-ups Required</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="database" class="w-4 h-4 text-brand-500"></i> 100% Local Storage</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="file-json" class="w-4 h-4 text-brand-500"></i> Instant 1-Click JSON Backup</span>
+      </div>
+
+    </div>
+
+    <!-- Hero Mockup & Tutorial Showcase -->
+    <div id="tutorial-section" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+      <div class="relative rounded-3xl bg-white p-3 sm:p-5 shadow-2xl border border-brand-100 custom-shadow">
+        
+        <!-- App Window Header Bar -->
+        <div class="flex flex-wrap items-center justify-between pb-3 mb-3 border-b border-slate-100 gap-3">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-rose-400 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 ml-2">IdeaPad Canvas v2.4 — Live Interactive Mockup</span>
+          </div>
+
+          <!-- Walkthrough Tabs / Player Mode -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
+            <button id="tabAppView" onclick="setMockupMode('app')" class="px-3 py-1 rounded-lg bg-white shadow-xs text-brand-700">App Canvas View</button>
+            <button id="tabTutorial" onclick="setMockupMode('tutorial')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1">
+              <i data-lucide="play-circle" class="w-3.5 h-3.5 text-brand-500"></i>
+              <span>Animated Tutorial</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div id="mockupAppView" class="rounded-2xl bg-slate-50 border border-slate-200/70 p-4 sm:p-6 transition-all duration-300">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Side: Prompt Node Palette -->
+            <div class="lg:col-span-4 space-y-4">
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Prompt Visual Nodes</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded-md bg-brand-50 text-brand-600 font-semibold">Active: Cyberpunk Neon</span>
+                </div>
+                <div class="space-y-2">
+                  <div class="p-2.5 rounded-xl bg-blue-50/60 border border-blue-200/80 flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                      Subject: "Futuristic Glass Greenhouse"
+                    </span>
+                    <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-purple-50/60 border border-purple-200/80 flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                      Atmosphere: "Volumetric Twilight Mist"
+                    </span>
+                    <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/80 flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                      Lens / Gear: "Anamorphic 35mm f/1.4"
+                    </span>
+                    <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span class="text-slate-500">Snapshot state: Stored locally</span>
+                  <span class="text-emerald-600 font-semibold flex items-center gap-1">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Saved
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick JSON Transfer Mockup button -->
+              <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-200 flex items-center justify-between">
+                <div class="text-xs">
+                  <p class="font-bold text-brand-900">Transfer Snapshot</p>
+                  <p class="text-brand-700">1-click JSON download / restore</p>
+                </div>
+                <button onclick="simulateJsonDownload()" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow hover:bg-brand-700 transition-colors flex items-center gap-1">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Export JSON</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Side: Live Visual Output Mockup -->
+            <div class="lg:col-span-8 flex flex-col justify-between bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs">
+              <div>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Target AI Engine Syntax Preview</span>
+                  <div class="flex items-center gap-1">
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Gemini Pro</span>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Claude 3.7</span>
+                    <span class="px-2 py-0.5 rounded-md bg-brand-100 text-brand-700 text-xs font-bold">ChatGPT / DALL-E</span>
+                  </div>
+                </div>
+
+                <!-- Formatted Prompt Preview -->
+                <div class="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed border border-slate-800 relative group">
+                  <div class="text-slate-400 mb-1">// Compiled IdeaPad Prompt (Ready for Copying):</div>
+                  <p class="text-emerald-300">
+                    "Ultra-detailed architectural photograph of a futuristic curved botanical glasshouse bathed in deep blue twilight mist, bioluminescent flora emitting subtle cyan illumination, shot on 35mm anamorphic prime lens, octane render clarity, balanced lighting --ar 16:9 --v 6.1"
+                  </p>
+                  <button onclick="copyGeneratedPrompt()" class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center gap-1 transition-colors border border-slate-700">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy Prompt</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive prompt simulator tags -->
+              <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-xs text-slate-400 font-medium">Add Quick Modifier:</span>
+                  <button onclick="addModifier('Hyper-Realistic')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-xs text-slate-600 transition-colors">+ Realistic</button>
+                  <button onclick="addModifier('Golden Hour Glow')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-xs text-slate-600 transition-colors">+ Golden Hour</button>
+                  <button onclick="addModifier('Minimalist Line Art')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-xs text-slate-600 transition-colors">+ Line Art</button>
+                </div>
+                <div class="text-xs text-brand-700 font-semibold flex items-center gap-1">
+                  <i data-lucide="sparkle" class="w-3.5 h-3.5 text-brand-500"></i> Ready to paste into LLMs
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tutorial Slide Preview (Switched via Tab) -->
+        <div id="mockupTutorialView" class="hidden rounded-2xl bg-slate-900 text-white p-6 sm:p-10 transition-all duration-300 text-center relative overflow-hidden">
+          <div class="max-w-xl mx-auto space-y-4">
+            <div class="w-16 h-16 mx-auto rounded-3xl bg-brand-500/20 text-brand-400 border border-brand-500/40 flex items-center justify-center animate-bounce">
+              <i data-lucide="film" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-heading text-2xl font-bold text-white">How To Master Visual Prompting in 3 Steps</h3>
+            <p class="text-sm text-slate-300">
+              Watch this interactive workflow slide show. Discover how to arrange visual tags, fine-tune style tokens, and export directly to Gemini, Claude, or Midjourney.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-left">
+              <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                <span class="text-xs font-bold text-brand-400">Step 1</span>
+                <p class="text-xs text-slate-200 mt-1 font-semibold">Drop visual chips & moods</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                <span class="text-xs font-bold text-brand-400">Step 2</span>
+                <p class="text-xs text-slate-200 mt-1 font-semibold">Preview compiled prompt</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                <span class="text-xs font-bold text-brand-400">Step 3</span>
+                <p class="text-xs text-slate-200 mt-1 font-semibold">Download snapshot JSON</p>
+              </div>
+            </div>
+            <div class="pt-4 flex justify-center gap-3">
+              <button onclick="setMockupMode('app')" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition-all shadow-lg">
+                Back to Interactive Mockup
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Standout Slogan Banner -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 my-8 sm:my-14">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-600 via-brand-700 to-blue-800 p-8 sm:p-12 text-white shadow-2xl shadow-brand-700/20 border border-brand-400/30">
+      
+      <!-- Ambient decorative rings -->
+      <div class="absolute -right-10 -bottom-10 w-72 h-72 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+      <div class="absolute top-0 right-1/3 w-40 h-40 rounded-full bg-brand-300/10 blur-xl pointer-events-none"></div>
+
+      <div class="relative z-10">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="p-2 rounded-xl bg-white/20 text-white shadow-xs">
+            <i data-lucide="infinity" class="w-6 h-6"></i>
+          </span>
+          <span class="text-xs sm:text-sm uppercase tracking-widest font-extrabold text-brand-200">Our Freedom Pledge</span>
+        </div>
+
+        <blockquote class="font-heading font-bold text-xl sm:text-2xl lg:text-3xl leading-snug tracking-tight text-white max-w-4xl">
+          “Freeware, that's right FREE - FOREVER. No account sign-ups, trials or upgrades. The full app functionality, all self contained under one roof and data stored locally. Save a snapshot of your stored data to transfer to another browser/device by downloading the JSON file with one click and reloading into another device. Your information is private, only viewable by you. Enjoy!”
+        </blockquote>
+
+        <div class="mt-6 pt-6 border-t border-white/20 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-brand-100">
+          <div class="flex items-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4 text-brand-300"></i>
+            <span>Zero trackers • Zero external databases • Client-side only</span>
+          </div>
+          <button onclick="downloadSampleJson()" class="px-4 py-2 rounded-xl bg-white text-brand-800 hover:bg-brand-50 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="download-cloud" class="w-4 h-4 text-brand-600"></i>
+            <span>Download Sample JSON Snapshot</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Purpose & Visual Prompting Section -->
+  <section id="features" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">
+        Built for Pure Creativity & Visual AI Exploration
+      </h2>
+      <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+        IdeaPad was built as a lightweight, frictionless companion for visual creators, writers, designers, and hobbyists experimenting with Generative AI models.
+      </p>
+    </div>
+
+    <!-- Feature Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="p-6 rounded-3xl bg-white border border-brand-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mb-4">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-heading font-bold text-slate-900 text-lg mb-2">Visual AI Prompter</h3>
+        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+          Primarily designed for generating nuanced visual prompts for Gemini, Claude, and ChatGPT. Stack lens types, camera angles, color stories, and art styles without memorizing complex syntax.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-6 rounded-3xl bg-white border border-brand-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+          <i data-lucide="hard-drive" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-heading font-bold text-slate-900 text-lg mb-2">Local & Private</h3>
+        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+          No external server saves your ideas. Every visual node, moodboard entry, and preset stays entirely in your browser's local sandbox.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-6 rounded-3xl bg-white border border-brand-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4">
+          <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-heading font-bold text-slate-900 text-lg mb-2">1-Click JSON Transfer</h3>
+        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+          Switching from desktop to tablet or phone? Simply download your stored JSON snapshot file with one click and load it into any device.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-6 rounded-3xl bg-white border border-brand-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+          <i data-lucide="smile" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-heading font-bold text-slate-900 text-lg mb-2">Just For Fun</h3>
+        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+          Not working on an enterprise prompt? Use IdeaPad to doodle concepts, explore visual inspirations, design moodboards, or just play around with imaginative ideas.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Responsibilities & Disclaimers Section -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="rounded-3xl bg-slate-50 border border-slate-200/90 p-6 sm:p-8">
+      <div class="flex items-start gap-4">
+        <div class="p-3 rounded-2xl bg-amber-50 text-amber-600 flex-shrink-0">
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        </div>
+        <div class="space-y-2 text-xs sm:text-sm text-slate-600">
+          <h4 class="font-heading font-bold text-slate-900 text-base">Important Notice & User Responsibility</h4>
+          <p class="leading-relaxed">
+            <strong class="text-slate-800">Your Data is in Your Hands:</strong> Because IdeaPad does not maintain any accounts, cloud databases, or centralized backups, <em>it is solely the user's responsibility to periodically download and save their JSON snapshots</em> before clearing browser cookies or changing machines.
+          </p>
+          <p class="leading-relaxed">
+            <strong class="text-slate-800">Disclaimer of Liability:</strong> IdeaPad is an open freeware utility provided for constructive creativity. The developer is not liable for data loss, accidental browser storage deletion, or any misuse/inappropriate content created by end users when submitting generated prompts to third-party AI services.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback, Bug Report & Suggestion Section -->
+  <section id="feedback" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <div class="bg-white rounded-3xl border border-brand-100 shadow-xl p-6 sm:p-10">
+      
+      <div class="text-center mb-8">
+        <span class="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold uppercase tracking-wider">Community First</span>
+        <h3 class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900 mt-2">Report Bugs or Suggest Features</h3>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          Have an idea or spotted a glitch? Drop a note below directly to the developer.
+        </p>
+      </div>
+
+      <!-- Contact / Bug Form submitting to Formspree -->
+      <form id="contactForm" onsubmit="handleFormSubmit(event)" action="https://formspree.io/f/placeholder_ideapad" method="POST" class="space-y-4">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Name -->
+          <div>
+            <label for="userName" class="block text-xs font-semibold text-slate-700 mb-1.5">Your Name</label>
+            <div class="relative">
+              <input type="text" id="userName" name="name" required placeholder="Alex Creator" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all">
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="userEmail" class="block text-xs font-semibold text-slate-700 mb-1.5">Your Email</label>
+            <input type="email" id="userEmail" name="email" required placeholder="alex@domain.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all">
+          </div>
+        </div>
+
+        <!-- Issue / Topic Type -->
+        <div>
+          <label for="issueTopic" class="block text-xs font-semibold text-slate-700 mb-1.5">Topic / Issue Type</label>
+          <select id="issueTopic" name="topic" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all bg-white text-slate-700">
+            <option value="bug">Bug Report (Something isn't working)</option>
+            <option value="feature">Feature Suggestion (Idea for IdeaPad Pro / Mini)</option>
+            <option value="feedback" selected>General Feedback & Friendly Greeting</option>
+            <option value="json_issue">JSON Backup / Import Inquiry</option>
+          </select>
+        </div>
+
+        <!-- Short Message -->
+        <div>
+          <label for="userMessage" class="block text-xs font-semibold text-slate-700 mb-1.5">Short Message</label>
+          <textarea id="userMessage" name="message" rows="4" required placeholder="Describe the bug or feature request in a few sentences..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all resize-none"></textarea>
+        </div>
+
+        <!-- Essential Human Verification Checkbox -->
+        <div class="p-3.5 rounded-2xl bg-brand-50/60 border border-brand-200/80 flex items-center gap-3">
+          <input type="checkbox" id="humanVerification" name="human_check" required class="w-4 h-4 rounded text-brand-600 focus:ring-brand-400 cursor-pointer">
+          <label for="humanVerification" class="text-xs sm:text-sm font-medium text-slate-700 select-none cursor-pointer">
+            I verify that I am a human creator (anti-spam requirement)
+          </label>
+        </div>
+
+        <!-- Form Submission Button -->
+        <button type="submit" id="submitBtn" class="w-full py-3.5 px-6 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white font-heading font-bold text-sm tracking-wide shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send Message to Developer</span>
+        </button>
+
+        <p class="text-center text-[11px] text-slate-400 pt-1">
+          Form submissions are sent securely via Formspree. No spam, ever.
+        </p>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- DESKTOP SLIDE-OUT AD SPACE (Docked on Right Side) -->
+  <aside id="desktopAdBanner" class="hidden lg:flex fixed top-24 right-4 z-40 w-72 flex-col bg-white/95 soft-blur rounded-3xl shadow-2xl border border-brand-200 p-4 transition-all duration-300 transform translate-x-0">
+    
+    <!-- Header with Close & Collapse -->
+    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Apps & Affiliates</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="toggleDesktopAd()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 text-xs transition-colors" title="Collapse / Close Banner">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Ad / Related Apps Content -->
+    <div class="space-y-3 my-1">
+      <p class="text-[11px] text-slate-500 leading-tight">
+        Support free development! Discover other companion apps in our creative ecosystem:
+      </p>
+
+      <!-- Promo 1 -->
+      <a href="javascript:void(0)" onclick="openPromo('PromptPalette')" class="block p-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 hover:border-brand-300 hover:shadow-xs transition-all group">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+          <span class="flex items-center gap-1.5 text-brand-700">
+            <i data-lucide="palette" class="w-3.5 h-3.5"></i> PromptPalette
+          </span>
+          <span class="text-[10px] uppercase bg-brand-100 text-brand-800 px-1.5 py-0.5 rounded font-bold">New</span>
+        </div>
+        <p class="text-[11px] text-slate-600 mt-1">Color theory & lighting generator for AI renderers.</p>
+      </a>
+
+      <!-- Promo 2 -->
+      <a href="javascript:void(0)" onclick="openPromo('TokenCounter')" class="block p-3 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-300 hover:shadow-xs transition-all group">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+          <span class="flex items-center gap-1.5 text-slate-700">
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> TokenTrim Studio
+          </span>
+          <span class="text-[10px] text-slate-400">Companion</span>
+        </div>
+        <p class="text-[11px] text-slate-600 mt-1">Compress wordy visual prompts without losing nuance.</p>
+      </a>
+
+      <!-- Affiliate Placeholder -->
+      <div class="p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-center">
+        <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">Sponsor / Partner Spot</span>
+        <p class="text-[11px] text-amber-900 mt-0.5">GPU Compute & Cloud Hosting Credits (Affiliate)</p>
+      </div>
+    </div>
+
+    <!-- Slide away toggle tab button -->
+    <button onclick="toggleDesktopAd()" class="mt-2 text-center w-full py-1 text-[11px] font-semibold text-slate-400 hover:text-brand-600 transition-colors">
+      Hide this banner
+    </button>
+  </aside>
+
+  <!-- Desktop Re-open Tab (Visible when sidebar collapsed) -->
+  <button id="desktopAdReopen" onclick="toggleDesktopAd()" class="hidden fixed top-28 right-0 z-40 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold py-2 px-3 rounded-l-2xl shadow-xl transition-all flex items-center gap-1.5 cursor-pointer">
+    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+    <span>Featured Apps</span>
+  </button>
+
+  <!-- MOBILE SLIDE-OUT AD SPACE (Docked at Bottom of Mobile Screen) -->
+  <div id="mobileAdBanner" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 soft-blur border-t border-brand-200 p-3.5 shadow-2xl transition-transform duration-300 transform translate-y-0">
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Companion Tools & Affiliates
+        </span>
+        <button onclick="toggleMobileAd()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg" aria-label="Close Bottom Banner">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 bg-brand-50/70 p-2.5 rounded-2xl border border-brand-100">
+        <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center flex-shrink-0">
+          <i data-lucide="palette" class="w-4 h-4"></i>
+        </div>
+        <div class="flex-grow min-w-0">
+          <h5 class="text-xs font-bold text-slate-900 truncate">PromptPalette & TokenTrim</h5>
+          <p class="text-[10px] text-slate-500 truncate">Free companions for creative prompts</p>
+        </div>
+        <button onclick="openPromo('Mobile Ecosystem')" class="px-2.5 py-1 rounded-xl bg-brand-600 text-white text-[11px] font-bold flex-shrink-0">
+          View
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Re-open Floating Pill (When mobile bottom ad dismissed) -->
+  <button id="mobileAdReopen" onclick="toggleMobileAd()" class="hidden lg:hidden fixed bottom-4 right-4 z-40 bg-brand-600 text-white px-3.5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+    <span>Apps</span>
+  </button>
+
+  <!-- Footer -->
+  <footer class="mt-16 border-t border-brand-100 bg-white/70 py-10 pb-28 lg:pb-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      <div class="flex items-center justify-center gap-2">
+        <span class="font-heading font-bold text-base text-slate-800">IdeaPad</span>
+        <span class="text-slate-300">•</span>
+        <span>Pro & Mini Editions</span>
+      </div>
+      <p class="max-w-md mx-auto text-slate-500">
+        Freeware visual prompt composer. No accounts, no subscriptions, no tracking. All data is client-side.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4 text-slate-400 font-medium pt-2">
+        <button onclick="toggleShareDrawer(true)" class="hover:text-brand-600 transition-colors">Social Share</button>
+        <span>•</span>
+        <a href="#feedback" class="hover:text-brand-600 transition-colors">Bug Report</a>
+        <span>•</span>
+        <a href="#tutorial-section" class="hover:text-brand-600 transition-colors">Demo</a>
+        <span>•</span>
+        <button onclick="simulateJsonDownload()" class="hover:text-brand-600 transition-colors">Sample JSON</button>
+      </div>
+      <p class="text-[11px] text-slate-400 pt-2">
+        © IdeaPad Creative Tools. Free forever.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lucide Icons on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+
+    // Helper: Show custom toast message
+    function showToast(message) {
+      const toast = document.getElementById('toastMessage');
+      const toastText = document.getElementById('toastText');
+      if (!toast || !toastText) return;
+
+      toastText.innerText = message;
+      toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-[-150%]', 'opacity-0');
+      }, 3500);
+    }
+
+    // Toggle Social Share Slide-Out Drawer
+    function toggleShareDrawer(open) {
+      const drawer = document.getElementById('shareDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      if (!drawer || !backdrop) return;
+
+      if (open) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.remove('opacity-100');
+        setTimeout(() => backdrop.classList.add('hidden'), 300);
+      }
+    }
+
+    // Social Sharing handler
+    function shareToSocial(platform) {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent("Check out IdeaPad Pro & Mini - 100% Free visual prompt studio with zero sign-ups and local JSON storage!");
+      let shareUrl = "";
+
+      switch (platform) {
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+          window.open(shareUrl, '_blank', 'width=600,height=400');
+          break;
+        case 'x':
+          shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+          window.open(shareUrl, '_blank', 'width=600,height=400');
+          break;
+        case 'instagram':
+        case 'tiktok':
+          copyShareLink();
+          showToast(`Link copied! Ready to paste into your ${platform} story or bio.`);
+          return;
+      }
+    }
+
+    // Clipboard copy with fallback for iframe compatibility
+    function copyShareLink() {
+      const url = window.location.href || 'https://ideapad.local';
+      copyTextToClipboard(url, 'Page link copied to clipboard!');
+    }
+
+    function copyGeneratedPrompt() {
+      const promptText = "Ultra-detailed architectural photograph of a futuristic curved botanical glasshouse bathed in deep blue twilight mist, bioluminescent flora emitting subtle cyan illumination, shot on 35mm anamorphic prime lens, octane render clarity, balanced lighting --ar 16:9 --v 6.1";
+      copyTextToClipboard(promptText, 'Visual prompt copied to clipboard! Paste into Gemini, Claude, or ChatGPT.');
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = text;
+      tempInput.style.position = "fixed";
+      tempInput.style.left = "-9999px";
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast('Copied to clipboard!');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    // App Launch Button Simulation
+    function launchApp(mode) {
+      showToast(`Launching IdeaPad ${mode}... Preparing local canvas.`);
+    }
+
+    // Interactive Demo modifier adding
+    function addModifier(tag) {
+      showToast(`Added modifier: "${tag}" to visual prompt stack.`);
+    }
+
+    // Toggle between Live Mockup and Tutorial Slide Show
+    function setMockupMode(mode) {
+      const appView = document.getElementById('mockupAppView');
+      const tutorialView = document.getElementById('mockupTutorialView');
+      const tabApp = document.getElementById('tabAppView');
+      const tabTutorial = document.getElementById('tabTutorial');
+
+      if (mode === 'tutorial') {
+        appView.classList.add('hidden');
+        tutorialView.classList.remove('hidden');
+        tabTutorial.classList.add('bg-white', 'shadow-xs', 'text-brand-700');
+        tabTutorial.classList.remove('text-slate-600');
+        tabApp.classList.remove('bg-white', 'shadow-xs', 'text-brand-700');
+        tabApp.classList.add('text-slate-600');
+      } else {
+        tutorialView.classList.add('hidden');
+        appView.classList.remove('hidden');
+        tabApp.classList.add('bg-white', 'shadow-xs', 'text-brand-700');
+        tabApp.classList.remove('text-slate-600');
+        tabTutorial.classList.remove('bg-white', 'shadow-xs', 'text-brand-700');
+        tabTutorial.classList.add('text-slate-600');
+      }
+      lucide.createIcons();
+    }
+
+    // Simulate 1-Click JSON Snapshot Download
+    function simulateJsonDownload() {
+      const sampleData = {
+        app: "IdeaPad Pro",
+        version: "2.4.0",
+        exportDate: new Date().toISOString(),
+        prompts: [
+          {
+            title: "Futuristic Glass Greenhouse",
+            engine: "Gemini / Midjourney",
+            tags: ["Twilight Mist", "35mm Anamorphic", "Octane Render", "Cyan Glow"],
+            text: "Ultra-detailed botanical glasshouse bathed in deep blue twilight mist..."
+          }
+        ],
+        settings: {
+          theme: "light",
+          autosave: true,
+          offlineStorage: "localStorage"
+        }
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sampleData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "ideapad_snapshot_sample.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      showToast("Downloaded sample JSON snapshot! Transferrable to any device.");
+    }
+
+    // Desktop Ad Sidebar Toggle
+    let desktopAdVisible = true;
+    function toggleDesktopAd() {
+      const banner = document.getElementById('desktopAdBanner');
+      const reopenBtn = document.getElementById('desktopAdReopen');
+      if (!banner || !reopenBtn) return;
+
+      desktopAdVisible = !desktopAdVisible;
+      if (desktopAdVisible) {
+        banner.classList.remove('translate-x-[120%]');
+        reopenBtn.classList.add('hidden');
+      } else {
+        banner.classList.add('translate-x-[120%]');
+        reopenBtn.classList.remove('hidden');
+        showToast("Apps banner collapsed. Click the tab anytime to reopen.");
+      }
+    }
+
+    // Mobile Ad Banner Toggle
+    let mobileAdVisible = true;
+    function toggleMobileAd() {
+      const banner = document.getElementById('mobileAdBanner');
+      const reopenBtn = document.getElementById('mobileAdReopen');
+      if (!banner || !reopenBtn) return;
+
+      mobileAdVisible = !mobileAdVisible;
+      if (mobileAdVisible) {
+        banner.classList.remove('translate-y-full');
+        reopenBtn.classList.add('hidden');
+      } else {
+        banner.classList.add('translate-y-full');
+        reopenBtn.classList.remove('hidden');
+      }
+    }
+
+    // Promotional item click simulation
+    function openPromo(appName) {
+      showToast(`Exploring ${appName} companion tool...`);
+    }
+
+    // Contact & Bug Report Form Handler (Formspree Ready)
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const humanCheck = document.getElementById('humanVerification');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!humanCheck || !humanCheck.checked) {
+        showToast('Please check the human verification box.');
+        return;
+      }
+
+      // Simulate sending with button states
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Sending report...</span>`;
+
+      // Simulating network request or submitting via fetch
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Sent! Thank you!</span>`;
+        showToast('Thank you! Your feedback has been sent to the developer.');
+        form.reset();
+        setTimeout(() => {
+          submitBtn.innerHTML = originalText;
+          lucide.createIcons();
+        }, 3000);
+      }, 900);
+    }
+  </script>
+</body>
+</html>
