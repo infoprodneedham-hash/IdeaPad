@@ -586,102 +586,121 @@
     </div>
   </section>
 
-  <!-- DESKTOP SLIDE-OUT AD SPACE (Docked on Right Side) -->
-  <aside id="desktopAdBanner" class="hidden lg:flex fixed top-24 right-4 z-40 w-72 flex-col bg-white/95 soft-blur rounded-3xl shadow-2xl border border-brand-200 p-4 transition-all duration-300 transform translate-x-0">
-    
-    <!-- Header with Close & Collapse -->
-    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-      <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Apps & Affiliates</span>
-      </div>
-      <div class="flex items-center gap-1">
-        <button onclick="toggleDesktopAd()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 text-xs transition-colors" title="Collapse / Close Banner">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
+  <!-- ========================================================================= -->
+<!-- DESKTOP SLIDE-OUT AD / ECOSYSTEM DOCK (Right side of screen, lg+ screens)  -->
+<!-- ========================================================================= -->
+<aside id="desktopAdBanner" class="hidden lg:flex fixed top-24 right-4 z-40 w-72 flex-col bg-white/95 soft-blur rounded-3xl shadow-2xl border border-brand-200 p-4 transition-all duration-300 transform translate-x-0">
+  
+  <!-- Header with Live Indicator & Dismiss Button -->
+  <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+    <div class="flex items-center gap-1.5">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Companion Apps</span>
     </div>
-
-    <!-- Ad / Related Apps Content -->
-    <div class="space-y-3 my-1">
-      <p class="text-[11px] text-slate-500 leading-tight">
-        Support free development! Discover other companion apps in our creative ecosystem:
-      </p>
-
-      <!-- Promo 1 -->
-      <a href="javascript:void(0)" onclick="openPromo('PromptPalette')" class="block p-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 hover:border-brand-300 hover:shadow-xs transition-all group">
-        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
-          <span class="flex items-center gap-1.5 text-brand-700">
-            <i data-lucide="palette" class="w-3.5 h-3.5"></i> PromptPalette
-          </span>
-          <span class="text-[10px] uppercase bg-brand-100 text-brand-800 px-1.5 py-0.5 rounded font-bold">New</span>
-        </div>
-        <p class="text-[11px] text-slate-600 mt-1">Color theory & lighting generator for AI renderers.</p>
-      </a>
-
-      <!-- Promo 2 -->
-      <a href="javascript:void(0)" onclick="openPromo('TokenCounter')" class="block p-3 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-300 hover:shadow-xs transition-all group">
-        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
-          <span class="flex items-center gap-1.5 text-slate-700">
-            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> TokenTrim Studio
-          </span>
-          <span class="text-[10px] text-slate-400">Companion</span>
-        </div>
-        <p class="text-[11px] text-slate-600 mt-1">Compress wordy visual prompts without losing nuance.</p>
-      </a>
-
-      <!-- Affiliate Placeholder -->
-      <div class="p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-center">
-        <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">Sponsor / Partner Spot</span>
-        <p class="text-[11px] text-amber-900 mt-0.5">GPU Compute & Cloud Hosting Credits (Affiliate)</p>
-      </div>
-    </div>
-
-    <!-- Slide away toggle tab button -->
-    <button onclick="toggleDesktopAd()" class="mt-2 text-center w-full py-1 text-[11px] font-semibold text-slate-400 hover:text-brand-600 transition-colors">
-      Hide this banner
+    <button onclick="toggleDesktopAd()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors" title="Collapse / Close Banner">
+      <i data-lucide="x" class="w-4 h-4"></i>
     </button>
-  </aside>
-
-  <!-- Desktop Re-open Tab (Visible when sidebar collapsed) -->
-  <button id="desktopAdReopen" onclick="toggleDesktopAd()" class="hidden fixed top-28 right-0 z-40 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold py-2 px-3 rounded-l-2xl shadow-xl transition-all flex items-center gap-1.5 cursor-pointer">
-    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-    <span>Featured Apps</span>
-  </button>
-
-  <!-- MOBILE SLIDE-OUT AD SPACE (Docked at Bottom of Mobile Screen) -->
-  <div id="mobileAdBanner" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 soft-blur border-t border-brand-200 p-3.5 shadow-2xl transition-transform duration-300 transform translate-y-0">
-    <div class="max-w-md mx-auto">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
-          Companion Tools & Affiliates
-        </span>
-        <button onclick="toggleMobileAd()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg" aria-label="Close Bottom Banner">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center gap-3 bg-brand-50/70 p-2.5 rounded-2xl border border-brand-100">
-        <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center flex-shrink-0">
-          <i data-lucide="palette" class="w-4 h-4"></i>
-        </div>
-        <div class="flex-grow min-w-0">
-          <h5 class="text-xs font-bold text-slate-900 truncate">PromptPalette & TokenTrim</h5>
-          <p class="text-[10px] text-slate-500 truncate">Free companions for creative prompts</p>
-        </div>
-        <button onclick="openPromo('Mobile Ecosystem')" class="px-2.5 py-1 rounded-xl bg-brand-600 text-white text-[11px] font-bold flex-shrink-0">
-          View
-        </button>
-      </div>
-    </div>
   </div>
 
-  <!-- Mobile Re-open Floating Pill (When mobile bottom ad dismissed) -->
-  <button id="mobileAdReopen" onclick="toggleMobileAd()" class="hidden lg:hidden fixed bottom-4 right-4 z-40 bg-brand-600 text-white px-3.5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-    <span>Apps</span>
+  <div class="space-y-2.5 my-1">
+    <p class="text-[11px] text-slate-500 leading-tight">
+      Explore companion creative suites in the Drawing Board ecosystem:
+    </p>
+
+    <!-- ITEM 1: Prompt Generator -->
+    <a href="https://espresso-dusky-kappa.vercel.app/" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 hover:border-brand-300 hover:shadow-xs transition-all group">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+        <span class="flex items-center gap-1.5 text-brand-700">
+          <i data-lucide="wand-2" class="w-3.5 h-3.5"></i> 
+          Prompt Generator
+        </span>
+        <span class="text-[10px] uppercase bg-brand-100 text-brand-800 px-1.5 py-0.5 rounded font-bold">Suite</span>
+      </div>
+      <p class="text-[11px] text-slate-600 mt-1 leading-snug">
+        Multi-model visual prompt builder for cinematic compositions and lighting.
+      </p>
+    </a>
+
+    <!-- ITEM 2: Character Studio -->
+    <a href="https://espresso-dusky-kappa.vercel.app/" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-300 hover:shadow-xs transition-all group">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+        <span class="flex items-center gap-1.5 text-slate-700">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-600"></i> 
+          Character Studio
+        </span>
+        <span class="text-[10px] text-slate-500 bg-slate-200/70 px-1.5 py-0.5 rounded font-semibold">Creator</span>
+      </div>
+      <p class="text-[11px] text-slate-600 mt-1 leading-snug">
+        Craft consistent character sheets, attire, poses, and distinct facial traits.
+      </p>
+    </a>
+
+    <!-- ITEM 3: Interior Prompt Studio -->
+    <a href="https://espresso-dusky-kappa.vercel.app/" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-300 hover:shadow-xs transition-all group">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+        <span class="flex items-center gap-1.5 text-slate-700">
+          <i data-lucide="armchair" class="w-3.5 h-3.5 text-brand-600"></i> 
+          Interior Studio
+        </span>
+        <span class="text-[10px] text-brand-700 bg-brand-50 border border-brand-200 px-1.5 py-0.5 rounded font-semibold">Design</span>
+      </div>
+      <p class="text-[11px] text-slate-600 mt-1 leading-snug">
+        Architectural spaces, material textures, furnishing, and ambient room light.
+      </p>
+    </a>
+  </div>
+
+  <!-- Bottom Collapse Button -->
+  <button onclick="toggleDesktopAd()" class="mt-2 text-center w-full py-1 text-[11px] font-semibold text-slate-400 hover:text-brand-600 transition-colors">
+    Hide this banner
   </button>
+</aside>
+
+<!-- Desktop Re-open Trigger Tab (Only visible when dock is collapsed) -->
+<button id="desktopAdReopen" onclick="toggleDesktopAd()" class="hidden fixed top-28 right-0 z-40 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold py-2 px-3 rounded-l-2xl shadow-xl transition-all flex items-center gap-1.5 cursor-pointer">
+  <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+  <span>Featured Apps</span>
+</button>
+
+
+<!-- ========================================================================= -->
+<!-- MOBILE DOCKED PROMO BAR (Bottom of screen, hidden on lg+ screens)          -->
+<!-- ========================================================================= -->
+<div id="mobileAdBanner" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 soft-blur border-t border-brand-200 p-3 shadow-2xl transition-transform duration-300 transform translate-y-0">
+  <div class="max-w-md mx-auto">
+    
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+        Companion Studios
+      </span>
+      <button onclick="toggleMobileAd()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg" aria-label="Close Bottom Banner">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Quick Hub Highlight -->
+    <div class="flex items-center gap-3 bg-brand-50/70 p-2.5 rounded-2xl border border-brand-100">
+      <div class="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center flex-shrink-0">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+      </div>
+      <div class="flex-grow min-w-0">
+        <h5 class="text-xs font-bold text-slate-900 truncate">Character & Interior Studios</h5>
+        <p class="text-[10px] text-slate-500 truncate">Prompt generators for characters, rooms & scenes</p>
+      </div>
+      <a href="https://espresso-dusky-kappa.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold flex-shrink-0 shadow-xs transition-colors">
+        Launch
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mobile Re-open Floating Pill (Only visible when bottom bar dismissed) -->
+<button id="mobileAdReopen" onclick="toggleMobileAd()" class="hidden lg:hidden fixed bottom-4 right-4 z-40 bg-brand-600 text-white px-3.5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+  <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+  <span>Apps</span>
+</button>
 
   <!-- Footer -->
   <footer class="mt-16 border-t border-brand-100 bg-white/70 py-10 pb-28 lg:pb-12 text-center text-xs text-slate-500">
