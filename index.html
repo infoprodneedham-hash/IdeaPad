@@ -194,7 +194,7 @@
           Why Free?
         </a>
         <a href="#hero-preview-section" class="hidden md:inline-flex text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors">
-          Live App View
+          App Preview
         </a>
         <a href="#feedback" class="text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5">
           <i data-lucide="message-square" class="w-4 h-4 text-brand-500"></i>
@@ -238,7 +238,7 @@
       <!-- TWO LARGE ROUNDED BUTTONS (Side by side on desktop, stacked on mobile) -->
       <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 max-w-xl mx-auto">
         
-        <!-- Drawing Board Pro Launch Desktop Button -> Direct Link to live app -->
+        <!-- Drawing Board Pro Launch Desktop Button -->
         <a href="https://ideapad-ashy.vercel.app/pro.html" target="_blank" rel="noopener noreferrer" class="w-full sm:w-1/2 group relative p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 text-white shadow-xl shadow-brand-600/25 hover:shadow-2xl hover:shadow-brand-600/35 hover:-translate-y-1 transition-all duration-200 text-left border border-brand-500/50 block">
           <div class="flex items-center justify-between mb-2">
             <span class="p-2.5 rounded-2xl bg-white/20 text-white group-hover:scale-110 transition-transform inline-block">
@@ -253,7 +253,7 @@
           </p>
         </a>
 
-        <!-- Drawing Board Mini Launch Mobile Button -> Direct Link to live app (optimized for compact/touch) -->
+        <!-- Drawing Board Mini Launch Mobile Button -->
         <a href="https://ideapad-ashy.vercel.app/mini.html" target="_blank" rel="noopener noreferrer" class="w-full sm:w-1/2 group relative p-5 rounded-3xl bg-white text-slate-800 shadow-xl shadow-slate-200/70 hover:shadow-2xl hover:shadow-brand-100 hover:-translate-y-1 transition-all duration-200 text-left border border-brand-200/70 block">
           <div class="flex items-center justify-between mb-2">
             <span class="p-2.5 rounded-2xl bg-brand-50 text-brand-600 group-hover:scale-110 transition-transform inline-block">
@@ -279,11 +279,11 @@
 
     </div>
 
-    <!-- HERO LIVE APP SHOWCASE & TUTORIAL SLIDESHOW -->
+    <!-- HERO APP SHOWCASE IMAGE PREVIEW & TUTORIAL SLIDESHOW -->
     <div id="hero-preview-section" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
       <div class="relative rounded-3xl bg-white p-3 sm:p-5 shadow-2xl border border-brand-100 custom-shadow">
         
-        <!-- Live Window Header Bar with Device Switchers & Tabs -->
+        <!-- Header Bar (Zero external URLs or web addresses) -->
         <div class="flex flex-wrap items-center justify-between pb-3 mb-3 border-b border-slate-100 gap-3">
           
           <!-- Window Dots & Title -->
@@ -294,75 +294,66 @@
               <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
             </div>
             <div class="flex items-center gap-2 ml-2">
-              <span class="text-xs font-bold text-slate-700">Drawing Board Pro Live App:</span>
-              <a href="https://idea-pad-tau.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-brand-600 hover:text-brand-800 hover:underline flex items-center gap-1 truncate max-w-[200px] sm:max-w-none">
-                <span>idea-pad-tau.vercel.app</span>
-                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-              </a>
+              <span class="text-xs font-bold text-slate-800">Drawing Board Interface</span>
+              <span class="text-[10px] font-semibold text-brand-700 bg-brand-50 border border-brand-200/80 px-2 py-0.5 rounded-full">Architectural Prompt & Geometry Studio</span>
             </div>
           </div>
 
-          <!-- Controls: Device Size Selector + Walkthrough Mode Switcher -->
+          <!-- Controls: Viewport and Mode Switchers -->
           <div class="flex flex-wrap items-center gap-2">
             
-            <!-- Viewport width switcher -->
+            <!-- Viewport switcher: Desktop vs Mobile snapshot container -->
             <div class="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
-              <button id="viewDesktopBtn" onclick="switchFrameView('desktop')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-brand-700 flex items-center gap-1" title="Desktop width preview">
+              <button id="viewDesktopBtn" onclick="switchPreviewImage('desktop')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-brand-700 flex items-center gap-1" title="Desktop view">
                 <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
                 <span>Desktop</span>
               </button>
-              <button id="viewMobileBtn" onclick="switchFrameView('mobile')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1" title="Mobile width preview">
+              <button id="viewMobileBtn" onclick="switchPreviewImage('mobile')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1" title="Mini Mode view">
                 <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
                 <span>Mini Mode</span>
               </button>
             </div>
 
-            <!-- View Modes: Live App vs Tutorial Overlay -->
+            <!-- View Modes: Image Preview vs Tutorial Overlay -->
             <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
               <button id="tabAppView" onclick="setMockupMode('app')" class="px-3 py-1 rounded-lg bg-white shadow-xs text-brand-700 flex items-center gap-1">
-                <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-500"></i>
-                <span>Live Interactive</span>
+                <i data-lucide="image" class="w-3.5 h-3.5 text-brand-500"></i>
+                <span>Workspace View</span>
               </button>
               <button id="tabTutorial" onclick="setMockupMode('tutorial')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1">
                 <i data-lucide="play-circle" class="w-3.5 h-3.5 text-brand-500"></i>
-                <span>Tutorial Slides</span>
+                <span>Tutorial</span>
               </button>
             </div>
-
-            <!-- Open full in new tab button -->
-            <a href="https://idea-pad-tau.vercel.app/" target="_blank" rel="noopener noreferrer" class="p-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 transition-colors" title="Open full screen in new tab">
-              <i data-lucide="maximize-2" class="w-4 h-4"></i>
-            </a>
 
           </div>
         </div>
 
-        <!-- Frame Container Housing Live App (https://idea-pad-tau.vercel.app/) -->
-        <div id="mockupAppView" class="relative rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex justify-center items-center min-h-[520px] transition-all duration-300">
+        <!-- Frame Container Housing Public Screenshot -->
+        <div id="mockupAppView" class="relative rounded-2xl bg-slate-900 border border-slate-200/80 overflow-hidden flex justify-center items-center transition-all duration-300">
           
-          <!-- Iframe Loading / Fallback Indicator -->
-          <div id="iframeLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 text-slate-500 z-10 transition-opacity duration-300">
-            <div class="w-10 h-10 border-3 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-3"></div>
-            <p class="text-xs font-semibold text-slate-600">Connecting to Drawing Board Pro (https://idea-pad-tau.vercel.app/)...</p>
-            <p class="text-[11px] text-slate-400 mt-1">Directly loading the self-contained live application</p>
+          <!-- Image Element Serving Your Provided Screenshot -->
+          <div id="imageWrapper" class="w-full transition-all duration-300 flex items-center justify-center p-1 bg-slate-950/20">
+            <img 
+              id="appPreviewImage"
+              src="./drawing-board-preview.png"
+              alt="Drawing Board - Architectural Prompt and Geometry Studio Interface" 
+              class="w-full h-auto max-h-[720px] object-contain rounded-xl shadow-lg border border-slate-200/60 transition-all duration-300"
+              loading="eager"
+            />
           </div>
 
-          <!-- Live App Iframe -->
-          <iframe 
-            id="liveAppFrame" 
-            src="https://idea-pad-tau.vercel.app/" 
-            title="Drawing Board Pro Live App" 
-            class="w-full h-[620px] border-0 transition-all duration-300 rounded-2xl bg-white shadow-inner"
-            onload="document.getElementById('iframeLoader').classList.add('opacity-0', 'pointer-events-none')"
-            loading="lazy"
-            allow="clipboard-read; clipboard-write;"
-          ></iframe>
-
-          <!-- Quick Bottom Actions Floating Bar inside the frame wrapper -->
-          <div class="absolute bottom-3 right-3 z-20 flex items-center gap-2">
-            <a href="https://idea-pad-tau.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-slate-900 text-white text-xs font-medium soft-blur shadow-lg flex items-center gap-1.5 border border-slate-700 transition-all">
-              <span>Open Pro in Fullscreen</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <!-- Bottom Status Pill -->
+          <div class="absolute bottom-3 left-4 right-4 sm:left-6 sm:right-6 flex flex-wrap items-center justify-between gap-3 bg-white/95 soft-blur border border-slate-200 p-2.5 sm:p-3 rounded-2xl shadow-lg">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <p class="text-xs font-semibold text-slate-800">
+                Drawing Board: 3-Tier Layer Wireframing, Laser Guides & ControlNet Exporting
+              </p>
+            </div>
+            <a href="https://ideapad-ashy.vercel.app/pro.html" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all">
+              <span>Launch Pro App</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </a>
           </div>
         </div>
@@ -401,13 +392,9 @@
 
             <div class="pt-4 flex flex-wrap items-center justify-center gap-3">
               <button onclick="setMockupMode('app')" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition-all shadow-lg flex items-center gap-2">
-                <i data-lucide="play" class="w-4 h-4"></i>
-                <span>Try Live App Now</span>
+                <i data-lucide="image" class="w-4 h-4"></i>
+                <span>View Workspace Image</span>
               </button>
-              <a href="https://idea-pad-tau.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-all border border-slate-700 flex items-center gap-1.5">
-                <span>Launch in Separate Tab</span>
-                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-              </a>
             </div>
           </div>
         </div>
@@ -708,13 +695,13 @@
         Freeware visual prompt composer. No accounts, no subscriptions, no tracking. All data is client-side.
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4 text-slate-400 font-medium pt-2">
-        <a href="https://idea-pad-tau.vercel.app/" target="_blank" rel="noopener noreferrer" class="hover:text-brand-600 transition-colors font-semibold text-brand-600">Open Drawing Board Pro</a>
+        <a href="https://ideapad-ashy.vercel.app/pro.html" target="_blank" rel="noopener noreferrer" class="hover:text-brand-600 transition-colors font-semibold text-brand-600">Open Drawing Board Pro</a>
         <span>•</span>
         <button onclick="toggleShareDrawer(true)" class="hover:text-brand-600 transition-colors">Social Share</button>
         <span>•</span>
         <a href="#feedback" class="hover:text-brand-600 transition-colors">Bug Report</a>
         <span>•</span>
-        <a href="#hero-preview-section" class="hover:text-brand-600 transition-colors">Live View</a>
+        <a href="#hero-preview-section" class="hover:text-brand-600 transition-colors">Preview</a>
         <span>•</span>
         <button onclick="downloadSampleJson()" class="hover:text-brand-600 transition-colors">Sample JSON</button>
       </div>
@@ -725,7 +712,6 @@
   </footer>
 
   <script>
-    // Initialize Lucide Icons on DOM load
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
     });
@@ -746,98 +732,35 @@
       }, 3500);
     }
 
-    // Toggle Social Share Slide-Out Drawer
-    function toggleShareDrawer(open) {
-      const drawer = document.getElementById('shareDrawer');
-      const backdrop = document.getElementById('drawerBackdrop');
-      if (!drawer || !backdrop) return;
-
-      if (open) {
-        drawer.classList.remove('-translate-x-full');
-        backdrop.classList.remove('hidden');
-        setTimeout(() => backdrop.classList.add('opacity-100'), 10);
-      } else {
-        drawer.classList.add('-translate-x-full');
-        backdrop.classList.remove('opacity-100');
-        setTimeout(() => backdrop.classList.add('hidden'), 300);
-      }
-    }
-
-    // Social Sharing handler pointing to live app
-    function shareToSocial(platform) {
-      const appUrl = "https://idea-pad-tau.vercel.app/";
-      const url = encodeURIComponent(appUrl);
-      const text = encodeURIComponent("Check out Drawing Board Pro - 100% Free visual prompt studio with zero sign-ups and local JSON storage!");
-      let shareUrl = "";
-
-      switch (platform) {
-        case 'facebook':
-          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-          window.open(shareUrl, '_blank', 'width=600,height=400');
-          break;
-        case 'x':
-          shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-          window.open(shareUrl, '_blank', 'width=600,height=400');
-          break;
-        case 'instagram':
-        case 'tiktok':
-          copyShareLink();
-          showToast(`App link copied! Ready to paste into your ${platform} story or bio.`);
-          return;
-      }
-    }
-
-    // Clipboard copy with fallback for iframe compatibility
-    function copyShareLink() {
-      const url = 'https://idea-pad-tau.vercel.app/';
-      copyTextToClipboard(url, 'Drawing Board Pro link copied to clipboard!');
-    }
-
-    function copyTextToClipboard(text, successMsg) {
-      const tempInput = document.createElement("textarea");
-      tempInput.value = text;
-      tempInput.style.position = "fixed";
-      tempInput.style.left = "-9999px";
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        showToast(successMsg);
-      } catch (err) {
-        showToast('Copied to clipboard!');
-      }
-      document.body.removeChild(tempInput);
-    }
-
-    // Switch between Desktop & Mobile iframe preview sizing
-    function switchFrameView(mode) {
-      const frame = document.getElementById('liveAppFrame');
+    // Switch between Desktop & Mobile framed views of the screenshot
+    function switchPreviewImage(mode) {
+      const wrapper = document.getElementById('imageWrapper');
       const desktopBtn = document.getElementById('viewDesktopBtn');
       const mobileBtn = document.getElementById('viewMobileBtn');
 
       if (mode === 'mobile') {
-        frame.style.maxWidth = '400px';
-        frame.style.margin = '0 auto';
-        frame.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)';
+        wrapper.style.maxWidth = '420px';
+        wrapper.style.margin = '0 auto';
+        wrapper.style.padding = '0.75rem';
         mobileBtn.classList.add('bg-white', 'shadow-xs', 'text-brand-700');
         mobileBtn.classList.remove('text-slate-600');
         desktopBtn.classList.remove('bg-white', 'shadow-xs', 'text-brand-700');
         desktopBtn.classList.add('text-slate-600');
-        showToast("Switched frame to Drawing Board Mini mobile viewport");
+        showToast("Switched frame to Drawing Board Mini Mode preview");
       } else {
-        frame.style.maxWidth = '100%';
-        frame.style.margin = '0';
-        frame.style.boxShadow = 'none';
+        wrapper.style.maxWidth = '100%';
+        wrapper.style.margin = '0';
+        wrapper.style.padding = '0.25rem';
         desktopBtn.classList.add('bg-white', 'shadow-xs', 'text-brand-700');
         desktopBtn.classList.remove('text-slate-600');
         mobileBtn.classList.remove('bg-white', 'shadow-xs', 'text-brand-700');
         mobileBtn.classList.add('text-slate-600');
-        showToast("Switched frame to Drawing Board Pro desktop viewport");
+        showToast("Switched frame to Drawing Board Pro Desktop preview");
       }
       lucide.createIcons();
     }
 
-    // Toggle between Live Mockup/App and Tutorial Slide Show
+    // Toggle between Screenshot Preview and Tutorial Slideshow
     function setMockupMode(mode) {
       const appView = document.getElementById('mockupAppView');
       const tutorialView = document.getElementById('mockupTutorialView');
@@ -862,11 +785,72 @@
       lucide.createIcons();
     }
 
+    // Toggle Social Share Slide-Out Drawer
+    function toggleShareDrawer(open) {
+      const drawer = document.getElementById('shareDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      if (!drawer || !backdrop) return;
+
+      if (open) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.remove('opacity-100');
+        setTimeout(() => backdrop.classList.add('hidden'), 300);
+      }
+    }
+
+    // Social Sharing handler
+    function shareToSocial(platform) {
+      const appUrl = "https://idea-pad-tau.vercel.app/";
+      const url = encodeURIComponent(appUrl);
+      const text = encodeURIComponent("Check out Drawing Board Pro - 100% Free visual prompt studio with zero sign-ups and local JSON storage!");
+      let shareUrl = "";
+
+      switch (platform) {
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+          window.open(shareUrl, '_blank', 'width=600,height=400');
+          break;
+        case 'x':
+          shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+          window.open(shareUrl, '_blank', 'width=600,height=400');
+          break;
+        case 'instagram':
+        case 'tiktok':
+          copyShareLink();
+          showToast(`App link copied! Ready to paste into your ${platform} story or bio.`);
+          return;
+      }
+    }
+
+    function copyShareLink() {
+      const url = 'https://idea-pad-tau.vercel.app/';
+      copyTextToClipboard(url, 'Drawing Board Pro link copied to clipboard!');
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = text;
+      tempInput.style.position = "fixed";
+      tempInput.style.left = "-9999px";
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast('Copied to clipboard!');
+      }
+      document.body.removeChild(tempInput);
+    }
+
     // Simulate 1-Click JSON Snapshot Download
     function downloadSampleJson() {
       const sampleData = {
         app: "Drawing Board Pro",
-        url: "https://idea-pad-tau.vercel.app/",
         version: "2.4.0",
         exportDate: new Date().toISOString(),
         prompts: [
@@ -930,7 +914,6 @@
       }
     }
 
-    // Promotional item click simulation
     function openPromo(appName) {
       showToast(`Exploring ${appName} companion tool...`);
     }
