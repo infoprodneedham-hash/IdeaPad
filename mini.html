@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full overflow-hidden bg-slate-900 select-none">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>IdeaPad Mini - Fast AI Visual Sketcher</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior: none;
+    }
+
+    /* Keep canvas gestures purely internal */
+    #main-canvas, #scratch-canvas {
+      touch-action: none;
+    }
+
+    .slide-drawer-transition {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+
+<body class="h-full w-full flex flex-col relative bg-slate-950 text-slate-100 overflow-hidden">
+
+  <!-- HIDDEN RESTORE FILE INPUT -->
+  <input type="file" id="json-file-input" accept=".json,application/json" class="hidden" />
+
+  <!-- TOP COMPACT APP BAR -->
+  <header class="h-12 bg-white/95 backdrop-blur border-b border-slate-200 px-3 flex items-center justify-between z-30 shrink-0 text-slate-800 shadow-sm">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white shadow-sm">
+        <i class="ph-bold ph-pencil-simple text-sm"></i>
+      </div>
+      <div>
+        <span class="text-xs font-bold tracking-tight text-slate-900">IdeaPad <span class="bg-blue-100 text-blue-700 text-[10px] px-1 py-0.2 rounded font-mono">Mini</span></span>
+      </div>
+    </div>
+
+    <!-- Quick Undo / Redo & Clear -->
+    <div class="flex items-center gap-1.5">
+      <button id="btn-undo" class="w-8 h-8 rounded-lg bg-slate-100 active:bg-slate-200 text-slate-700 flex items-center justify-center disabled:opacity-30">
+        <i class="ph-bold ph-arrow-u-up-left text-base"></i>
+      </button>
+      <button id="btn-redo" class="w-8 h-8 rounded-lg bg-slate-100 active:bg-slate-200 text-slate-700 flex items-center justify-center disabled:opacity-30">
+        <i class="ph-bold ph-arrow-u-up-right text-base"></i>
+      </button>
+      <button id="btn-clear" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 active:bg-rose-100 flex items-center justify-center ml-0.5">
+        <i class="ph-bold ph-trash text-base"></i>
+      </button>
+      <div class="h-4 w-[1px] bg-slate-200 mx-1"></div>
+
+      <!-- Compact Menu Toggle -->
+      <button id="btn-menu" class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
+        <i class="ph-bold ph-dots-three-vertical text-base"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SECONDARY SLIM PROPERTIES ROW -->
+  <div class="h-10 bg-slate-50 border-b border-slate-200 px-3 flex items-center justify-between z-20 shrink-0 text-slate-700 text-xs">
+    
+    <!-- Color Presets + Native Color Picker -->
+    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+      <label class="relative w-6 h-6 rounded-full border border-slate-300 overflow-hidden shrink-0 cursor-pointer shadow-sm">
+        <input type="color" id="native-color" value="#000000" class="absolute -top-2 -left-2 w-10 h-10 cursor-pointer" />
+      </label>
+
+      <button class="color-dot w-6 h-6 rounded-full bg-black ring-2 ring-blue-500 shrink-0" data-color="#000000"></button>
+      <button class="color-dot w-6 h-6 rounded-full bg-blue-600 shrink-0" data-color="#2563eb"></button>
+      <button class="color-dot w-6 h-6 rounded-full bg-emerald-500 shrink-0" data-color="#10b981"></button>
+      <button class="color-dot w-6 h-6 rounded-full bg-amber-500 shrink-0" data-color="#f59e0b"></button>
+      <button class="color-dot w-6 h-6 rounded-full bg-rose-500 shrink-0" data-color="#ef4444"></button>
+      <button class="color-dot w-6 h-6 rounded-full bg-white border border-slate-300 shrink-0" data-color="#ffffff"></button>
+    </div>
+
+    <!-- Size Slider or Font Selector -->
+    <div id="prop-standard" class="flex items-center gap-2 pl-2">
+      <i class="ph-bold ph-circle text-[8px] text-slate-400"></i>
+      <input type="range" id="prop-stroke" min="2" max="36" value="4" class="w-20 accent-blue-600 cursor-pointer" />
+      <span id="label-stroke" class="text-[11px] font-mono w-5 text-right font-semibold">4</span>
+    </div>
+
+    <div id="prop-text-options" class="hidden flex items-center gap-1.5">
+      <select id="prop-font-family" class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-[11px]">
+        <option value="Arial" selected>Arial</option>
+        <option value="Times New Roman">Times</option>
+        <option value="Century Gothic, sans-serif">Gothic</option>
+        <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+      </select>
+      <select id="prop-font-size" class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-mono">
+        <option value="16">16</option>
+        <option value="22" selected>22</option>
+        <option value="32">32</option>
+        <option value="48">48</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- MAXIMIZED CANVAS WORKSPACE -->
+  <main class="flex-1 relative w-full h-full bg-white overflow-hidden" id="canvas-container">
+    <canvas id="main-canvas" class="absolute inset-0 block"></canvas>
+    <canvas id="scratch-canvas" class="absolute inset-0 block pointer-events-none"></canvas>
+
+    <!-- FLOATING LEFT TOOL PALETTE (Ultra-Compact Vertical Island) -->
+    <div class="absolute left-2.5 top-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/80 p-1 flex flex-col gap-1 z-20">
+      <button data-tool="pen" class="tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-white bg-blue-600 shadow-sm" title="Pen">
+        <i class="ph-bold ph-pencil-simple text-lg"></i>
+      </button>
+      <button data-tool="marker" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Chisel Marker">
+        <i class="ph-bold ph-highlighter text-lg"></i>
+      </button>
+      <button data-tool="line" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Line">
+        <i class="ph-bold ph-line-segment text-lg"></i>
+      </button>
+      <button data-tool="rect" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Box">
+        <i class="ph-bold ph-square text-lg"></i>
+      </button>
+      <button data-tool="circle" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Circle">
+        <i class="ph-bold ph-circle text-lg"></i>
+      </button>
+      <button data-tool="text" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Text">
+        <i class="ph-bold ph-text-t text-lg"></i>
+      </button>
+      <button data-tool="eraser" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100" title="Eraser">
+        <i class="ph-bold ph-eraser text-lg"></i>
+      </button>
+    </div>
+  </main>
+
+  <!-- SLIDE-DOWN BOTTOM BANNER FOR AFFILIATE / PROMO LINKS -->
+  <div id="promo-banner" class="fixed bottom-0 left-0 right-0 z-40 slide-drawer-transition transform translate-y-0">
+    <div class="mx-2 mb-2 bg-slate-900/95 text-white backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl p-2.5 flex flex-col gap-2">
+      
+      <!-- Slide-down handle & Dismiss toggle -->
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-cyan-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span>Featured Partner & Apps</span>
+        </div>
+        <button id="btn-toggle-banner" class="text-slate-400 hover:text-white p-1 flex items-center gap-1 text-xs">
+          <span class="text-[10px]" id="banner-toggle-text">Slide Down</span>
+          <i id="banner-chevron" class="ph-bold ph-caret-down"></i>
+        </button>
+      </div>
+
+      <!-- Affiliate / Link Carousel Cards -->
+      <div id="banner-content" class="grid grid-cols-2 gap-2 text-left">
+        <a href="https://idea-pad-tau.vercel.app/" target="_blank" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-blue-500 flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-white flex items-center justify-between">
+              IdeaPad Pro
+              <i class="ph-bold ph-arrow-up-right text-[10px] text-blue-400"></i>
+            </div>
+            <div class="text-[9px] text-slate-400 leading-tight mt-0.5">3-tier layers, A3 drafting & laser rulers</div>
+          </div>
+          <span class="mt-1 text-[9px] text-blue-400 font-medium">Open Desktop App →</span>
+        </a>
+
+        <a href="#sponsor" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-emerald-500 flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-white flex items-center justify-between">
+              AI Visual Seeds
+              <i class="ph-bold ph-sparkle text-[10px] text-emerald-400"></i>
+            </div>
+            <div class="text-[9px] text-slate-400 leading-tight mt-0.5">ControlNet & Midjourney prompt pack</div>
+          </div>
+          <span class="mt-1 text-[9px] text-emerald-400 font-medium">Explore Hub →</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DROPDOWN SLIDE-OVER ACTIONS MENU (JSON / SNAPSHOT) -->
+  <div id="actions-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-3 hidden">
+    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-sm p-4 flex flex-col gap-3 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <span class="text-sm font-bold flex items-center gap-1.5">
+          <i class="ph-bold ph-floppy-disk text-blue-600"></i> Project & Exports
+        </span>
+        <button id="btn-close-menu" class="p-1 rounded-full text-slate-400 hover:text-slate-700">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <button id="btn-save-json" class="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+            { }
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-800">Download JSON Snapshot</div>
+            <div class="text-[10px] text-slate-500">1-click restore file for mobile/desktop</div>
+          </div>
+        </button>
+
+        <button id="btn-load-json" class="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm shrink-0">
+            <i class="ph-bold ph-upload-simple"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-800">Restore JSON File</div>
+            <div class="text-[10px] text-slate-500">Pick saved project file from storage</div>
+          </div>
+        </button>
+
+        <button id="btn-export-img" class="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shrink-0">
+            <i class="ph-bold ph-image"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-800">Export PNG Image</div>
+            <div class="text-[10px] text-slate-500">Clean visual seed ready for AI prompt</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-white text-xs px-3 py-1.5 rounded-full shadow-lg border border-slate-700 pointer-events-none opacity-0 transition-opacity"></div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    const container = document.getElementById('canvas-container');
+    const mainCanvas = document.getElementById('main-canvas');
+    const scratchCanvas = document.getElementById('scratch-canvas');
+    const ctx = mainCanvas.getContext('2d');
+    const scratchCtx = scratchCanvas.getContext('2d');
+
+    const STATE = {
+      tool: 'pen',
+      color: '#000000',
+      strokeWidth: 4,
+      fontFamily: 'Arial',
+      fontSize: 22,
+      isBannerCollapsed: false,
+      history: [],
+      redoStack: []
+    };
+
+    let isDrawing = false;
+    let startX = 0, startY = 0;
+
+    // Responsive Canvas Resolution matching Physical Display Pixels
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      // Preserve current drawing on orientation change / resize
+      let temp = null;
+      if (mainCanvas.width > 0 && mainCanvas.height > 0) {
+        temp = document.createElement('canvas');
+        temp.width = mainCanvas.width;
+        temp.height = mainCanvas.height;
+        temp.getContext('2d').drawImage(mainCanvas, 0, 0);
+      }
+
+      mainCanvas.width = width * dpr;
+      mainCanvas.height = height * dpr;
+      mainCanvas.style.width = width + 'px';
+      mainCanvas.style.height = height + 'px';
+      ctx.scale(dpr, dpr);
+
+      scratchCanvas.width = width * dpr;
+      scratchCanvas.height = height * dpr;
+      scratchCanvas.style.width = width + 'px';
+      scratchCanvas.style.height = height + 'px';
+      scratchCtx.scale(dpr, dpr);
+
+      // Restore white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      if (temp) {
+        ctx.drawImage(temp, 0, 0, width, height);
+      } else {
+        saveState();
+      }
+    }
+
+    function saveState() {
+      if (STATE.history.length > 20) STATE.history.shift();
+      STATE.history.push(mainCanvas.toDataURL());
+      STATE.redoStack = [];
+      updateUndoUI();
+    }
+
+    function undo() {
+      if (STATE.history.length <= 1) return;
+      STATE.redoStack.push(STATE.history.pop());
+      const stateImg = new Image();
+      stateImg.src = STATE.history[STATE.history.length - 1];
+      stateImg.onload = () => {
+        ctx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+        ctx.drawImage(stateImg, 0, 0, container.clientWidth, container.clientHeight);
+        updateUndoUI();
+      };
+    }
+
+    function redo() {
+      if (STATE.redoStack.length === 0) return;
+      const nextState = STATE.redoStack.pop();
+      STATE.history.push(nextState);
+      const stateImg = new Image();
+      stateImg.src = nextState;
+      stateImg.onload = () => {
+        ctx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+        ctx.drawImage(stateImg, 0, 0, container.clientWidth, container.clientHeight);
+        updateUndoUI();
+      };
+    }
+
+    function updateUndoUI() {
+      document.getElementById('btn-undo').disabled = STATE.history.length <= 1;
+      document.getElementById('btn-redo').disabled = STATE.redoStack.length === 0;
+    }
+
+    function getPointerPos(e) {
+      const rect = mainCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function setContextStyle(c, tool = STATE.tool) {
+      c.strokeStyle = STATE.color;
+      c.fillStyle = STATE.color;
+      c.lineWidth = STATE.strokeWidth;
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+      c.globalAlpha = 1.0;
+      c.globalCompositeOperation = 'source-over';
+
+      if (tool === 'marker') {
+        c.lineWidth = STATE.strokeWidth * 3.2;
+        c.lineCap = 'square';
+        c.globalAlpha = 0.4;
+      } else if (tool === 'eraser') {
+        c.strokeStyle = '#ffffff';
+        c.lineWidth = STATE.strokeWidth * 3;
+      } else if (tool === 'text') {
+        c.font = `${STATE.fontSize}px ${STATE.fontFamily}`;
+        c.textBaseline = 'top';
+      }
+    }
+
+    // Touch and Pointer Listeners
+    function startDraw(e) {
+      if (STATE.tool === 'text') {
+        const pos = getPointerPos(e);
+        const text = prompt('Enter visual label:', '');
+        if (text && text.trim()) {
+          setContextStyle(ctx, 'text');
+          ctx.fillText(text, pos.x, pos.y);
+          saveState();
+        }
+        return;
+      }
+
+      isDrawing = true;
+      const pos = getPointerPos(e);
+      startX = pos.x;
+      startY = pos.y;
+
+      setContextStyle(ctx);
+      if (['pen', 'marker', 'eraser'].includes(STATE.tool)) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX + 0.1, startY + 0.1);
+        ctx.stroke();
+      }
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing) return;
+      const pos = getPointerPos(e);
+
+      if (['pen', 'marker', 'eraser'].includes(STATE.tool)) {
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+      } else {
+        // Shapes live preview on scratch canvas
+        scratchCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+        setContextStyle(scratchCtx);
+
+        scratchCtx.beginPath();
+        if (STATE.tool === 'line') {
+          scratchCtx.moveTo(startX, startY);
+          scratchCtx.lineTo(pos.x, pos.y);
+          scratchCtx.stroke();
+        } else if (STATE.tool === 'rect') {
+          scratchCtx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+        } else if (STATE.tool === 'circle') {
+          const rx = Math.abs(pos.x - startX) / 2;
+          const ry = Math.abs(pos.y - startY) / 2;
+          scratchCtx.ellipse(Math.min(startX, pos.x) + rx, Math.min(startY, pos.y) + ry, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2);
+          scratchCtx.stroke();
+        }
+      }
+    }
+
+    function endDraw(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      if (['line', 'rect', 'circle'].includes(STATE.tool)) {
+        scratchCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        const rect = mainCanvas.getBoundingClientRect();
+        const endX = clientX - rect.left;
+        const endY = clientY - rect.top;
+
+        setContextStyle(ctx);
+        ctx.beginPath();
+        if (STATE.tool === 'line') {
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        } else if (STATE.tool === 'rect') {
+          ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+        } else if (STATE.tool === 'circle') {
+          const rx = Math.abs(endX - startX) / 2;
+          const ry = Math.abs(endY - startY) / 2;
+          ctx.ellipse(Math.min(startX, endX) + rx, Math.min(startY, endY) + ry, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      } else {
+        ctx.closePath();
+      }
+      saveState();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 1800);
+    }
+
+    // 1-Click JSON Snapshot Export & Restore
+    function downloadJsonSnapshot() {
+      const payload = {
+        app: 'IdeaPad Mini',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        canvasData: mainCanvas.toDataURL('image/png')
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ideapad-mini-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById('actions-modal').classList.add('hidden');
+      showToast('JSON Snapshot downloaded');
+    }
+
+    function restoreJsonSnapshot(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data.canvasData) {
+            const img = new Image();
+            img.src = data.canvasData;
+            img.onload = () => {
+              ctx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+              ctx.drawImage(img, 0, 0, container.clientWidth, container.clientHeight);
+              saveState();
+              showToast('Restored from JSON');
+            };
+          }
+        } catch {
+          showToast('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+      document.getElementById('actions-modal').classList.add('hidden');
+    }
+
+    // Export PNG
+    function exportPngImage() {
+      const a = document.createElement('a');
+      a.href = mainCanvas.toDataURL('image/png');
+      a.download = `ideapad-mini-${Date.now()}.png`;
+      a.click();
+      document.getElementById('actions-modal').classList.add('hidden');
+      showToast('PNG image downloaded');
+    }
+
+    // Banner Slide Down & Toggle
+    function toggleBanner() {
+      STATE.isBannerCollapsed = !STATE.isBannerCollapsed;
+      const banner = document.getElementById('promo-banner');
+      const text = document.getElementById('banner-toggle-text');
+      const chevron = document.getElementById('banner-chevron');
+      const content = document.getElementById('banner-content');
+
+      if (STATE.isBannerCollapsed) {
+        banner.style.transform = 'translateY(calc(100% - 32px))';
+        text.textContent = 'Slide Up';
+        chevron.className = 'ph-bold ph-caret-up';
+      } else {
+        banner.style.transform = 'translateY(0)';
+        text.textContent = 'Slide Down';
+        chevron.className = 'ph-bold ph-caret-down';
+      }
+    }
+
+    // Attach Listeners
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('load', () => {
+      resizeCanvas();
+
+      // Touch / pointer drawing bindings
+      mainCanvas.addEventListener('pointerdown', startDraw);
+      window.addEventListener('pointermove', moveDraw);
+      window.addEventListener('pointerup', endDraw);
+
+      // Tool change
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tool-btn').forEach(b => {
+            b.className = 'tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100';
+          });
+          btn.className = 'tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-white bg-blue-600 shadow-sm';
+          STATE.tool = btn.dataset.tool;
+
+          const std = document.getElementById('prop-standard');
+          const txt = document.getElementById('prop-text-options');
+          if (STATE.tool === 'text') {
+            std.classList.add('hidden');
+            txt.classList.remove('hidden');
+          } else {
+            std.classList.remove('hidden');
+            txt.classList.add('hidden');
+          }
+        });
+      });
+
+      // Palette selection
+      document.querySelectorAll('.color-dot').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.color-dot').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
+          btn.classList.add('ring-2', 'ring-blue-500');
+          STATE.color = btn.dataset.color;
+          document.getElementById('native-color').value = STATE.color;
+        });
+      });
+
+      document.getElementById('native-color').addEventListener('input', (e) => {
+        STATE.color = e.target.value;
+      });
+
+      document.getElementById('prop-stroke').addEventListener('input', (e) => {
+        STATE.strokeWidth = parseInt(e.target.value, 10);
+        document.getElementById('label-stroke').textContent = STATE.strokeWidth;
+      });
+
+      document.getElementById('prop-font-family').addEventListener('change', (e) => {
+        STATE.fontFamily = e.target.value;
+      });
+      document.getElementById('prop-font-size').addEventListener('change', (e) => {
+        STATE.fontSize = parseInt(e.target.value, 10);
+      });
+
+      document.getElementById('btn-undo').addEventListener('click', undo);
+      document.getElementById('btn-redo').addEventListener('click', redo);
+      document.getElementById('btn-clear').addEventListener('click', () => {
+        if (confirm('Clear canvas?')) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, container.clientWidth, container.clientHeight);
+          saveState();
+        }
+      });
+
+      // Menu & Snapshot Handlers
+      document.getElementById('btn-menu').addEventListener('click', () => {
+        document.getElementById('actions-modal').classList.remove('hidden');
+      });
+      document.getElementById('btn-close-menu').addEventListener('click', () => {
+        document.getElementById('actions-modal').classList.add('hidden');
+      });
+
+      document.getElementById('btn-save-json').addEventListener('click', downloadJsonSnapshot);
+      document.getElementById('btn-load-json').addEventListener('click', () => {
+        document.getElementById('json-file-input').click();
+      });
+      document.getElementById('json-file-input').addEventListener('change', restoreJsonSnapshot);
+      document.getElementById('btn-export-img').addEventListener('click', exportPngImage);
+
+      // Slide-down Banner toggle
+      document.getElementById('btn-toggle-banner').addEventListener('click', toggleBanner);
+    });
+  </script>
+</body>
+</html>
