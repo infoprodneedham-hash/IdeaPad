@@ -175,7 +175,7 @@
         </div>
         <div>
           <h1 class="text-sm font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
-            IdeaPad
+            Drawing Board
             <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-mono-code font-semibold">A3 DRAFT</span>
           </h1>
           <p class="text-[10px] text-slate-500 -mt-0.5">Architectural Prompt & Geometry Studio</p>
@@ -1691,7 +1691,7 @@
 
       const ext = format === 'image/jpeg' ? 'jpg' : 'png';
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      const filename = `IdeaPad-A3-Sheet${STATE.activeSheet + 1}-${timestamp}.${ext}`;
+      const filename = `Drawing Board-A3-Sheet${STATE.activeSheet + 1}-${timestamp}.${ext}`;
 
       const link = document.createElement('a');
       link.download = filename;
@@ -1764,7 +1764,7 @@
       });
 
       const payload = {
-        app: 'IdeaPad Pro',
+        app: 'Drawing Board Pro',
         version: '2.0.0',
         timestamp: new Date().toISOString(),
         activeSheet: STATE.activeSheet,
@@ -1778,7 +1778,7 @@
       const downloadAnchor = document.createElement('a');
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
       downloadAnchor.setAttribute('href', dataStr);
-      downloadAnchor.setAttribute('download', `IdeaPad-Snapshot-${timestamp}.json`);
+      downloadAnchor.setAttribute('download', `Drawing Board-Snapshot-${timestamp}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -1801,7 +1801,7 @@
         try {
           const data = JSON.parse(event.target.result);
           if (!data || !data.sheets || !Array.isArray(data.sheets)) {
-            throw new Error('Invalid IdeaPad snapshot format.');
+            throw new Error('Invalid Drawing Board snapshot format.');
           }
 
           const loadImg = (src) => new Promise(resolve => {
@@ -1869,7 +1869,7 @@
     }
 
     // LocalStorage Persistent Slots
-    const STORAGE_KEY = 'ideapad_saved_slots_v2';
+    const STORAGE_KEY = 'Drawing Board_saved_slots_v2';
 
     function getSavedSlots() {
       try {
