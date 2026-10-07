@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>IdeaPad Mini - Fast AI Visual Sketcher</title>
+  <title>Drawing Board Mini - Fast AI Visual Sketcher</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Phosphor Icons -->
@@ -45,7 +45,7 @@
         <i class="ph-bold ph-pencil-simple text-sm"></i>
       </div>
       <div>
-        <span class="text-xs font-bold tracking-tight text-slate-900">IdeaPad <span class="bg-blue-100 text-blue-700 text-[10px] px-1 py-0.2 rounded font-mono">Mini</span></span>
+        <span class="text-xs font-bold tracking-tight text-slate-900">Drawing Board <span class="bg-blue-100 text-blue-700 text-[10px] px-1 py-0.2 rounded font-mono">Mini</span></span>
       </div>
     </div>
 
@@ -185,7 +185,7 @@
         <a href="https://idea-pad-tau.vercel.app/" target="_blank" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-blue-500 flex flex-col justify-between">
           <div>
             <div class="text-[11px] font-bold text-white flex items-center justify-between">
-              IdeaPad Pro
+              Drawing Board Pro
               <i class="ph-bold ph-arrow-up-right text-[10px] text-blue-400"></i>
             </div>
             <div class="text-[9px] text-slate-400 leading-tight mt-0.5">3-tier layers, A3 drafting & laser rulers</div>
@@ -523,7 +523,7 @@
 
     function downloadJsonSnapshot() {
       const payload = {
-        app: 'IdeaPad Mini',
+        app: 'Drawing Board Mini',
         version: '1.0.0',
         timestamp: new Date().toISOString(),
         canvasData: mainCanvas.toDataURL('image/png')
@@ -532,7 +532,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ideapad-mini-${Date.now()}.json`;
+      a.download = `Drawing Board-mini-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
       document.getElementById('actions-modal').classList.add('hidden');
@@ -567,7 +567,7 @@
     function exportPngImage() {
       const a = document.createElement('a');
       a.href = mainCanvas.toDataURL('image/png');
-      a.download = `ideapad-mini-${Date.now()}.png`;
+      a.download = `Drawing Board-mini-${Date.now()}.png`;
       a.click();
       document.getElementById('actions-modal').classList.add('hidden');
       showToast('PNG image downloaded');
