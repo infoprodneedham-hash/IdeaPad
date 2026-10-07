@@ -23,7 +23,6 @@
       overscroll-behavior: none;
     }
 
-    /* Keep canvas gestures purely internal */
     #main-canvas, #scratch-canvas {
       touch-action: none;
     }
@@ -116,7 +115,7 @@
     <canvas id="main-canvas" class="absolute inset-0 block"></canvas>
     <canvas id="scratch-canvas" class="absolute inset-0 block pointer-events-none"></canvas>
 
-    <!-- FLOATING LEFT TOOL PALETTE (Ultra-Compact Vertical Island) -->
+    <!-- FLOATING LEFT TOOL PALETTE -->
     <div class="absolute left-2.5 top-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/80 p-1 flex flex-col gap-1 z-20">
       <button data-tool="pen" class="tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-white bg-blue-600 shadow-sm" title="Pen">
         <i class="ph-bold ph-pencil-simple text-lg"></i>
@@ -141,6 +140,29 @@
       </button>
     </div>
   </main>
+
+  <!-- DEDICATED MOBILE TEXT INPUT MODAL (Prevents browser prompt locks) -->
+  <div id="text-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-4 w-full max-w-xs shadow-2xl flex flex-col gap-3">
+      <div class="flex items-center justify-between text-slate-800">
+        <span class="text-xs font-bold flex items-center gap-1.5">
+          <i class="ph-bold ph-text-t text-blue-600"></i> Add Text Label
+        </span>
+        <button id="btn-cancel-text" class="text-slate-400 hover:text-slate-700">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+      <input type="text" id="modal-text-input" placeholder="Type prompt label..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-blue-600" />
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="btn-dismiss-text" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 active:bg-slate-200">
+          Cancel
+        </button>
+        <button id="btn-apply-text" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 active:bg-blue-700 shadow-sm">
+          Place
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- SLIDE-DOWN BOTTOM BANNER FOR AFFILIATE / PROMO LINKS -->
   <div id="promo-banner" class="fixed bottom-0 left-0 right-0 z-40 slide-drawer-transition transform translate-y-0">
@@ -250,6 +272,7 @@
       fontFamily: 'Arial',
       fontSize: 22,
       isBannerCollapsed: false,
+      pendingTextPos: null,
       history: [],
       redoStack: []
     };
@@ -257,13 +280,11 @@
     let isDrawing = false;
     let startX = 0, startY = 0;
 
-    // Responsive Canvas Resolution matching Physical Display Pixels
     function resizeCanvas() {
       const dpr = window.devicePixelRatio || 1;
       const width = container.clientWidth;
       const height = container.clientHeight;
 
-      // Preserve current drawing on orientation change / resize
       let temp = null;
       if (mainCanvas.width > 0 && mainCanvas.height > 0) {
         temp = document.createElement('canvas');
@@ -284,7 +305,6 @@
       scratchCanvas.style.height = height + 'px';
       scratchCtx.scale(dpr, dpr);
 
-      // Restore white background
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
@@ -364,16 +384,60 @@
       }
     }
 
-    // Touch and Pointer Listeners
+    function activateTool(toolName) {
+      STATE.tool = toolName;
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        if (btn.dataset.tool === toolName) {
+          btn.className = 'tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-white bg-blue-600 shadow-sm';
+        } else {
+          btn.className = 'tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100';
+        }
+      });
+
+      const std = document.getElementById('prop-standard');
+      const txt = document.getElementById('prop-text-options');
+      if (toolName === 'text') {
+        std.classList.add('hidden');
+        txt.classList.remove('hidden');
+      } else {
+        std.classList.remove('hidden');
+        txt.classList.add('hidden');
+      }
+    }
+
+    // Modal Text Functions
+    function openTextModal(pos) {
+      STATE.pendingTextPos = pos;
+      const modal = document.getElementById('text-modal');
+      const input = document.getElementById('modal-text-input');
+      input.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeTextModal() {
+      document.getElementById('text-modal').classList.add('hidden');
+      STATE.pendingTextPos = null;
+      // Auto-revert back to pen tool so subsequent taps don't keep popping text prompts
+      activateTool('pen');
+    }
+
+    function applyText() {
+      const input = document.getElementById('modal-text-input');
+      const text = input.value.trim();
+      if (text && STATE.pendingTextPos) {
+        setContextStyle(ctx, 'text');
+        ctx.fillText(text, STATE.pendingTextPos.x, STATE.pendingTextPos.y);
+        saveState();
+        showToast('Text placed');
+      }
+      closeTextModal();
+    }
+
     function startDraw(e) {
       if (STATE.tool === 'text') {
         const pos = getPointerPos(e);
-        const text = prompt('Enter visual label:', '');
-        if (text && text.trim()) {
-          setContextStyle(ctx, 'text');
-          ctx.fillText(text, pos.x, pos.y);
-          saveState();
-        }
+        openTextModal(pos);
         return;
       }
 
@@ -399,7 +463,6 @@
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       } else {
-        // Shapes live preview on scratch canvas
         scratchCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
         setContextStyle(scratchCtx);
 
@@ -458,7 +521,6 @@
       setTimeout(() => { toast.style.opacity = '0'; }, 1800);
     }
 
-    // 1-Click JSON Snapshot Export & Restore
     function downloadJsonSnapshot() {
       const payload = {
         app: 'IdeaPad Mini',
@@ -502,7 +564,6 @@
       document.getElementById('actions-modal').classList.add('hidden');
     }
 
-    // Export PNG
     function exportPngImage() {
       const a = document.createElement('a');
       a.href = mainCanvas.toDataURL('image/png');
@@ -512,13 +573,11 @@
       showToast('PNG image downloaded');
     }
 
-    // Banner Slide Down & Toggle
     function toggleBanner() {
       STATE.isBannerCollapsed = !STATE.isBannerCollapsed;
       const banner = document.getElementById('promo-banner');
       const text = document.getElementById('banner-toggle-text');
       const chevron = document.getElementById('banner-chevron');
-      const content = document.getElementById('banner-content');
 
       if (STATE.isBannerCollapsed) {
         banner.style.transform = 'translateY(calc(100% - 32px))';
@@ -531,38 +590,27 @@
       }
     }
 
-    // Attach Listeners
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('load', () => {
       resizeCanvas();
 
-      // Touch / pointer drawing bindings
       mainCanvas.addEventListener('pointerdown', startDraw);
       window.addEventListener('pointermove', moveDraw);
       window.addEventListener('pointerup', endDraw);
 
-      // Tool change
       document.querySelectorAll('.tool-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.tool-btn').forEach(b => {
-            b.className = 'tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 active:bg-slate-100';
-          });
-          btn.className = 'tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-white bg-blue-600 shadow-sm';
-          STATE.tool = btn.dataset.tool;
-
-          const std = document.getElementById('prop-standard');
-          const txt = document.getElementById('prop-text-options');
-          if (STATE.tool === 'text') {
-            std.classList.add('hidden');
-            txt.classList.remove('hidden');
-          } else {
-            std.classList.remove('hidden');
-            txt.classList.add('hidden');
-          }
-        });
+        btn.addEventListener('click', () => activateTool(btn.dataset.tool));
       });
 
-      // Palette selection
+      // Text Modal controls
+      document.getElementById('btn-apply-text').addEventListener('click', applyText);
+      document.getElementById('btn-cancel-text').addEventListener('click', closeTextModal);
+      document.getElementById('btn-dismiss-text').addEventListener('click', closeTextModal);
+      document.getElementById('modal-text-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') applyText();
+        if (e.key === 'Escape') closeTextModal();
+      });
+
       document.querySelectorAll('.color-dot').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.color-dot').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
@@ -598,7 +646,6 @@
         }
       });
 
-      // Menu & Snapshot Handlers
       document.getElementById('btn-menu').addEventListener('click', () => {
         document.getElementById('actions-modal').classList.remove('hidden');
       });
@@ -613,7 +660,6 @@
       document.getElementById('json-file-input').addEventListener('change', restoreJsonSnapshot);
       document.getElementById('btn-export-img').addEventListener('click', exportPngImage);
 
-      // Slide-down Banner toggle
       document.getElementById('btn-toggle-banner').addEventListener('click', toggleBanner);
     });
   </script>
