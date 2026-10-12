@@ -198,10 +198,39 @@
         <a href="#hero-preview-section" class="hidden md:inline-flex text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors">
           App Preview
         </a>
-        <a href="#feedback" class="text-sm font-semibold text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5">
-          <i data-lucide="message-square" class="w-4 h-4 text-brand-500"></i>
-          <span>Report & Feedback</span>
-        </a>
+        <!-- Button HTML -->
+<a 
+  href="https://support-lilac-omega.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  class="contact-dev-btn"
+>
+  Contact The Dev
+</a>
+
+<!-- Embedded CSS Styling -->
+<style>
+  .contact-dev-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #ffffff;
+    background-color: #000000;
+    border: 1px solid #000000;
+    border-radius: 9999px; /* Fully rounded pill shape */
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Reverse color rollover */
+  .contact-dev-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
+  }
+</style>
 
         <!-- Social Share Toggle Button -->
         <button onclick="toggleShareDrawer(true)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold text-sm border border-brand-200/80 transition-all hover:shadow-sm active:scale-95" title="Share with friends">
